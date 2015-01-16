@@ -36,7 +36,7 @@ class PageData:
 
 search_terms = ''
 for i in range(1, len(sys.argv)):
-	search_terms = sys.argv[i] + '%20'
+	search_terms = search_terms + sys.argv[i] + '%20'
 
 page = PageData('http://kickass.so/usearch/' + search_terms + '/')
 for x in page.torrent_list:
