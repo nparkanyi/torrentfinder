@@ -23,3 +23,16 @@ class PageData:
 		self.torrent_list = [TorrentInfo(name_elems[i].text, size_elems[i].text,
 								seed_elems[i].text, magnet_elems[i].get('href'))
 								for i in range(len(name_elems))]
+
+search_terms = ''
+for i in range(1, len(sys.argv)):
+	search_terms = sys.argv[i] + '%20'
+
+print(search_terms)
+page = PageData('http://kickass.so/usearch/' + search_terms + '/')
+for x in page.torrent_list:
+	print (x.name)
+	print (x.size)
+	print (x.seeders)
+	print ('-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+')
+
