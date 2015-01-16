@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#See 'LICENSE' for license details. 
 import urllib3, sys
 from bs4 import BeautifulSoup
 
@@ -8,6 +9,15 @@ class TorrentInfo:
 		self.size = size
 		self.seeders = seeders
 		self.magnet = magnet
+	
+	def print_info(self):
+		print(' _____________________________________  ')
+		print('/                                     \\')
+		print(x.name)
+		print('Size: ', x.size, '    Seeders: ', x.seeders)
+		print('Magnet: ', x.magnet)
+		print('\\                                      /')
+		print(' --------------------------------------')
 
 class PageData:
 	def __init__(self, url):
@@ -28,11 +38,6 @@ search_terms = ''
 for i in range(1, len(sys.argv)):
 	search_terms = sys.argv[i] + '%20'
 
-print(search_terms)
 page = PageData('http://kickass.so/usearch/' + search_terms + '/')
 for x in page.torrent_list:
-	print (x.name)
-	print (x.size)
-	print (x.seeders)
-	print ('-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+')
-
+	x.print_info()
