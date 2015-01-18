@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 usage_text = """
 torrentfinder.py Copyright 2015 Nicholas Parkanyi
-Usage: torrentfinder.py [-h] [-n results] search terms
+Usage: torrentfinder.py [-h] [-n results] [-s min_seeders] search terms
 """
 
 class TorrentInfo:
@@ -38,12 +38,16 @@ class PageData:
 		self.torrent_list = [TorrentInfo(name_elems[i].text, size_elems[i].text,
 								seed_elems[i].text, magnet_elems[i].get('href'))
 								for i in range(len(name_elems))]
+	
+	def filter_torrents(self, func):
+		self.torrent_list = list(filter(func, self.torrent_list))
 
 max_results = 4
+min_seeders = 0
 search_terms = ''
 
 try:
-	optlist, args = getopt.getopt(sys.argv[1:], 'hn:') 
+	optlist, args = getopt.getopt(sys.argv[1:], 'hn:s:') 
 except getopt.GetoptError as err:
 	print(err)
 	print(usage_text)
@@ -59,6 +63,8 @@ for o, a in optlist:
 	elif o == '-h':
 		print(usage_text)
 		sys.exit()
+	elif o == '-s':
+		min_seeders = int(a)
 	else:
 		print('Error: missing argument')
 		sys.exit(2)
@@ -67,5 +73,7 @@ for i in range(len(args)):
 	search_terms = search_terms + args[i] + '%20'
 
 page = PageData('http://kickass.so/usearch/' + search_terms + '/')
+page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
+
 for i in range(min(max_results, len(page.torrent_list))):
 	page.torrent_list[i].print_info()
