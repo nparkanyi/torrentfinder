@@ -21,8 +21,7 @@ class TorrentInfo:
 		print(self.name)
 		print('Size: ', self.size, '    Seeders: ', self.seeders)
 		print('Magnet: ', self.magnet)
-		print('\\                                      /')
-		print(' --------------------------------------')
+		print('\\_____________________________________/')
 
 class PageData:
 	def __init__(self, url):
