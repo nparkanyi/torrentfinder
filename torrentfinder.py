@@ -71,7 +71,7 @@ for o, a in optlist:
 for i in range(len(args)):
   search_terms = search_terms + args[i] + '%20'
 
-page = PageData('http://kickass.so/usearch/' + search_terms + '/')
+page = PageData('http://kickass.to/usearch/' + search_terms + '/')
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 
 for i in range(min(max_results, len(page.torrent_list))):
