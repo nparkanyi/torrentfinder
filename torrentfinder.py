@@ -16,12 +16,12 @@ class TorrentInfo:
     self.magnet = magnet
   
   def print_info(self):
-    print(' _____________________________________  ')
-    print('/                                     \\')
-    print(self.name)
-    print('Size: ', self.size, '    Seeders: ', self.seeders)
-    print('Magnet: ', self.magnet)
-    print('\\_____________________________________/')
+    print(' ' + '_' * len(self.name))
+    print('/' + ' ' * len(self.name) + '\\')
+    print(' ' + self.name)
+    print(' Size: ', self.size, '    Seeders: ', self.seeders)
+    print(' Magnet: ', self.magnet)
+    print('\\' + '_' * len(self.name) + '/')
 
 class PageData:
   def __init__(self, url):
