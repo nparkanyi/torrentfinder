@@ -24,22 +24,27 @@ class TorrentInfo:
     print('\\' + '_' * len(self.name) + '/')
 
 class PageData:
-  def __init__(self, url):
+  def __init__(self, url, parse_func):
     self.http = urllib3.PoolManager()
     self.request = self.http.request('GET', url)
     self.html = BeautifulSoup(self.request.data)
 
-    name_elems = self.html.find_all('a', attrs={ 'class' : 'cellMainLink'}) 
-    size_elems = self.html.find_all('td', attrs={ 'class' : 'nobr center'})
-    seed_elems = self.html.find_all('td', attrs={ 'class' : 'green center'})
-    magnet_elems = self.html.find_all('a', attrs={ 'class' : 'imagnet icon16'})
-    
-    self.torrent_list = [TorrentInfo(name_elems[i].text, size_elems[i].text,
-                seed_elems[i].text, magnet_elems[i].get('href'))
-                for i in range(len(name_elems))]
+    parse_func(self)
+        
+    self.torrent_list = [TorrentInfo(self.name_elems[i].text, self.size_elems[i].text,
+                self.seed_elems[i].text, self.magnet_elems[i].get('href'))
+                for i in range(len(self.name_elems))]
   
   def filter_torrents(self, func):
     self.torrent_list = list(filter(func, self.torrent_list))
+
+
+def KT_parse_elements(page):
+  page.name_elems = page.html.find_all('a', attrs={ 'class' : 'cellMainLink'}) 
+  page.size_elems = page.html.find_all('td', attrs={ 'class' : 'nobr center'})
+  page.seed_elems = page.html.find_all('td', attrs={ 'class' : 'green center'})
+  page.magnet_elems = page.html.find_all('a', attrs={ 'class' : 'imagnet icon16'})
+
 
 max_results = 4
 min_seeders = 0
@@ -71,7 +76,7 @@ for o, a in optlist:
 for i in range(len(args)):
   search_terms = search_terms + args[i] + '%20'
 
-page = PageData('http://kickass.to/usearch/' + search_terms + '/')
+page = PageData('http://kickass.to/usearch/' + search_terms + '/', KT_parse_elements)
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 
 for i in range(min(max_results, len(page.torrent_list))):
