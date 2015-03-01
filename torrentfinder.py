@@ -2,11 +2,19 @@
 #See 'LICENSE' for license details. 
 import urllib3, sys, getopt
 from bs4 import BeautifulSoup
+from docopt import docopt
 
 usage_text = """
 torrentfinder.py Copyright 2015 Nicholas Parkanyi
-Usage: torrentfinder.py [-h] [-n results] [-s min_seeders] search terms
+Usage: torrentfinder.py [options] <search_terms>...
+
+--help, -h                    Display this usage info.
+--number=results, -n results  Number of result to display. 
+--seeders=min, -s min         Filter results based on minimum number of seeders.
+ 
 """
+
+args = docopt(usage_text)
 
 class TorrentInfo:
   def __init__(self, name, size, seeders, magnet):
@@ -50,31 +58,22 @@ max_results = 4
 min_seeders = 0
 search_terms = ''
 
-try:
-  optlist, args = getopt.getopt(sys.argv[1:], 'hn:s:') 
-except getopt.GetoptError as err:
-  print(err)
-  print(usage_text)
-  sys.exit(2)
-
-if len(args) == 0:
+if len(args['<search_terms>']) == 0:
   print(usage_text)
   sys.exit()
 
-for o, a in optlist:
-  if o == '-n':
-    max_results = int(a)
-  elif o == '-h':
-    print(usage_text)
-    sys.exit()
-  elif o == '-s':
-    min_seeders = int(a)
-  else:
-    print('Error: missing argument')
-    sys.exit(2)
+if (args['--number']):
+  max_results = int(args['--number'])
 
-for i in range(len(args)):
-  search_terms = search_terms + args[i] + '%20'
+if (args['--seeders']):
+  min_seeders = int(args['--seeders'])
+
+if (args['--help']):
+  print(usage_text)
+  sys.exit()
+
+for i in range(len(args['<search_terms>'])):
+  search_terms = search_terms + args['<search_terms>'][i] + '%20'
 
 page = PageData('http://kickass.to/usearch/' + search_terms + '/', KT_parse_elements)
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
