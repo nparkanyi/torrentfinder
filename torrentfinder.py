@@ -12,6 +12,7 @@ Usage: torrentfinder.py [options] <search_terms>...
 --help, -h                    Display this usage info.
 --number=results, -n results  Number of results to display.
 --seeders=min, -s min         Filter results based on minimum number of seeders.
+--website=site, -w site       'kt' for kickass.to, 'pb' for thepiratebay.la.
 
 """
 
@@ -60,6 +61,17 @@ def KT_parse_elements(page):
                                            attrs={'class': 'imagnet icon16'})
 
 
+def PB_parse_elements(page):
+    page.name_elems = page.html.find_all('a', attrs={'class': 'detLink'})
+    page.size_elems = page.html.find_all('font', attrs={'class': 'detDesc'})
+    seed_elems_tmp = page.html.find_all('td', attrs={'align': 'right'})
+    page.magnet_elems = page.html.find_all('a', attrs={'title': 'Download this torrent using magnet'})
+    page.seed_elems = []
+    for i in range(len(seed_elems_tmp)):
+        if i % 2 == 0:
+            page.seed_elems.append(seed_elems_tmp[i])
+
+
 max_results = 4
 min_seeders = 0
 search_terms = ''
@@ -81,8 +93,13 @@ if (args['--help']):
 for i in range(len(args['<search_terms>'])):
     search_terms = search_terms + args['<search_terms>'][i] + '%20'
 
-page = PageData('http://kickass.to/usearch/' + search_terms + '/',
-                KT_parse_elements)
+if args['--website'] == 'pb':
+    page = PageData('https://thepiratebay.la/search/' + search_terms + '/',
+                    PB_parse_elements)
+else:
+    page = PageData('http://kickass.to/usearch/' + search_terms + '/',
+                    KT_parse_elements)
+
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 
 for i in range(min(max_results, len(page.torrent_list))):
