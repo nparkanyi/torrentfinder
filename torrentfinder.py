@@ -39,7 +39,7 @@ class PageData:
     def __init__(self, url, parse_func):
         self.http = urllib3.PoolManager()
         self.request = self.http.request('GET', url)
-        self.html = BeautifulSoup(self.request.data)
+        self.html = BeautifulSoup(self.request.data, 'lxml')
 
         parse_func(self)
 
