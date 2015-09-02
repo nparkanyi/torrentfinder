@@ -12,7 +12,7 @@ Usage: torrentfinder.py [options] <search_terms>...
 --help, -h                    Display this usage info.
 --number=results, -n results  Number of results to display.
 --seeders=min, -s min         Filter results based on minimum number of seeders.
---website=site, -w site       'kt' for kickass.to, 'pb' for thepiratebay.la.
+--website=site, -w site       'kt' for kat.cr, 'pb' for thepiratebay.la.
 
 """
 
@@ -58,7 +58,7 @@ def KT_parse_elements(page):
     page.size_elems = page.html.find_all('td', attrs={'class': 'nobr center'})
     page.seed_elems = page.html.find_all('td', attrs={'class': 'green center'})
     page.magnet_elems = page.html.find_all('a',
-                                           attrs={'class': 'imagnet icon16'})
+                                           attrs={'title': 'Torrent magnet link'})
 
 
 def PB_parse_elements(page):
@@ -97,7 +97,7 @@ if args['--website'] == 'pb':
     page = PageData('https://thepiratebay.la/search/' + search_terms + '/',
                     PB_parse_elements)
 else:
-    page = PageData('http://kickass.to/usearch/' + search_terms + '/',
+    page = PageData('http://kat.cr/usearch/' + search_terms + '/',
                     KT_parse_elements)
 
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
