@@ -8,4 +8,4 @@ and **urllib3**. Copyright 2015 Nicholas Parkanyi, see LICENSE.
     --help, -h                    Display this usage info.
     --number=results, -n results  Number of results to display.
     --seeders=min, -s min         Filter results based on minimum number of seeders.
-    --website=site, -w site       'kt' for kat.cr, 'pb' for thepiratebay.la.
+    --website=site, -w site       'kt' for kat.cr (default), 'pb' for thepiratebay.la.
