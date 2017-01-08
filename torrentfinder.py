@@ -43,10 +43,10 @@ class PageData:
 
         parse_func(self)
 
-        self.torrent_list = [TorrentInfo(self.name_elems[i].text,
-                                         self.size_elems[i].text,
-                                         self.seed_elems[i].text,
-                                         self.magnet_elems[i].get('href'))
+        self.torrent_list = [TorrentInfo(self.name_elems[i],
+                                         self.size_elems[i],
+                                         self.seed_elems[i],
+                                         self.magnet_elems[i])
                              for i in range(len(self.name_elems))]
 
     def filter_torrents(self, func):
@@ -54,10 +54,14 @@ class PageData:
 
 
 def PB_parse_elements(page):
-    page.name_elems = page.html.find_all('a', attrs={'class': 'detLink'})
-    page.size_elems = page.html.find_all('font', attrs={'class': 'detDesc'})
-    seed_elems_tmp = page.html.find_all('td', attrs={'align': 'right'})
-    page.magnet_elems = page.html.find_all('a', attrs={'title': 'Download this torrent using magnet'})
+    page.name_elems = list(map(lambda x: x.text,
+                           page.html.find_all('a', attrs={'class': 'detLink'})))
+    page.size_elems = list(map(lambda x: x.text,
+                           page.html.find_all('font', attrs={'class': 'detDesc'})))
+    seed_elems_tmp = list(map(lambda x: x.text,
+                           page.html.find_all('td', attrs={'align': 'right'})))
+    page.magnet_elems = list(map(lambda x: x.get('href'),
+                           page.html.find_all('a', attrs={'title': 'Download this torrent using magnet'})))
     page.seed_elems = []
     for i in range(len(seed_elems_tmp)):
         if i % 2 == 0:
@@ -67,14 +71,17 @@ def PB_parse_elements(page):
 def l337_sub_page(page, sub_url):
     sub_req = page.http.request('GET', sub_url)
     sub_html = BeautifulSoup(sub_req.data, 'lxml')
-    return sub_html.find_all('a', attrs={'class': 'btn-magnet'})[0]
+    return sub_html.find_all('a', attrs={'class': 'btn-magnet'})[0].get('href')
  
 def l337_parse_elements(page):
-    page.size_elems = page.html.find_all('td', class_ = 'coll-4')
-    page.seed_elems = page.html.find_all('td', class_ = 'coll-2')
+    page.size_elems = list(map(lambda x: x.text[:x.text.find('B') + 1],
+                              page.html.find_all('td', class_ = 'coll-4')))
+    page.seed_elems = list(map(lambda x: x.text,
+                              page.html.find_all('td', class_ = 'coll-2')))
     page.name_elems = page.html.find_all('td', class_ = 'coll-1')
     page.name_elems = list(map(lambda x: x.find_all('a')[1], page.name_elems))
     sub_urls = list(map(lambda x: x.get('href'), page.name_elems))
+    page.name_elems = list(map(lambda x: x.text, page.name_elems))
     page.magnet_elems = list(map(lambda x: l337_sub_page(page, 'https://1337x.to' + x),
                              sub_urls))
     
