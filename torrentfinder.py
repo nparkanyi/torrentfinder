@@ -94,10 +94,10 @@ for i in range(len(args['<search_terms>'])):
     search_terms = search_terms + args['<search_terms>'][i] + '%20'
 
 if args['--website'] == 'pb':
-    page = PageData('https://thepiratebay.la/search/' + search_terms + '/',
+    page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
                     PB_parse_elements)
 else:
-    page = PageData('http://kat.cr/usearch/' + search_terms + '/',
+    page = PageData('http://kickasstorrents.to/usearch/' + search_terms + '/',
                     KT_parse_elements)
 
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
