@@ -6,13 +6,13 @@ from bs4 import BeautifulSoup
 from docopt import docopt
 
 usage_text = """
-torrentfinder.py Copyright 2015 Nicholas Parkanyi
+torrentfinder.py Copyright 2015-2017 Nicholas Parkanyi
 Usage: torrentfinder.py [options] <search_terms>...
 
 --help, -h                    Display this usage info.
 --number=results, -n results  Number of results to display.
 --seeders=min, -s min         Filter results based on minimum number of seeders.
---website=site, -w site       'kt' for kat.cr (default), 'pb' for thepiratebay.la.
+--website=site, -w site       'kt' for kickasstorrents.to (default), 'pb' for thepiratebay.org.
 
 """
 
@@ -95,7 +95,6 @@ for i in range(len(args['<search_terms>'])):
     
 #remove trailing '%20', fucks up search urls
 search_terms = search_terms[:-3]
-print(search_terms)
 
 if args['--website'] == 'pb':
     page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
