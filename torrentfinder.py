@@ -12,7 +12,7 @@ Usage: torrentfinder.py [options] <search_terms>...
 --help, -h                    Display this usage info.
 --number=results, -n results  Number of results to display.
 --seeders=min, -s min         Filter results based on minimum number of seeders.
---website=site, -w site       'kt' for kickasstorrents.to (default), 'pb' for thepiratebay.org.
+--website=site, -w site       'pb' for thepiratebay.org(default).
 
 """
 
@@ -53,14 +53,6 @@ class PageData:
         self.torrent_list = list(filter(func, self.torrent_list))
 
 
-def KT_parse_elements(page):
-    page.name_elems = page.html.find_all('a', attrs={'class': 'cellMainLink'})
-    page.size_elems = page.html.find_all('td', attrs={'class': 'nobr center'})
-    page.seed_elems = page.html.find_all('td', attrs={'class': 'green center'})
-    page.magnet_elems = page.html.find_all('a',
-                                           attrs={'title': 'Download torrent file'})
-
-
 def PB_parse_elements(page):
     page.name_elems = page.html.find_all('a', attrs={'class': 'detLink'})
     page.size_elems = page.html.find_all('font', attrs={'class': 'detDesc'})
@@ -96,12 +88,9 @@ for i in range(len(args['<search_terms>'])):
 #remove trailing '%20', fucks up search urls
 search_terms = search_terms[:-3]
 
-if args['--website'] == 'pb':
-    page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
-                    PB_parse_elements)
-else:
-    page = PageData('http://kickasstorrents.to/usearch/' + search_terms + '/',
-                    KT_parse_elements)
+#if args['--website'] == 'pb':
+page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
+                PB_parse_elements)
 
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 

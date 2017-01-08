@@ -8,4 +8,4 @@ Command line tool that searches for torrents online. Requires **python3**, **Bea
     --help, -h                    Display this usage info.
     --number=results, -n results  Number of results to display.
     --seeders=min, -s min         Filter results based on minimum number of seeders.
-    --website=site, -w site       'kt' for kickasstorrents.to (default), 'pb' for thepiratebay.org.
+    --website=site, -w site       'pb' for thepiratebay.org(default).
