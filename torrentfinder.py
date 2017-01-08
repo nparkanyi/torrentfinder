@@ -56,8 +56,9 @@ class PageData:
 def PB_parse_elements(page):
     page.name_elems = list(map(lambda x: x.text,
                            page.html.find_all('a', attrs={'class': 'detLink'})))
-    page.size_elems = list(map(lambda x: x.text,
+    page.size_elems = list(map(lambda x: x.text[x.text.find('Size') + 7:],
                            page.html.find_all('font', attrs={'class': 'detDesc'})))
+    page.size_elems = list(map(lambda x: x[:x.find(',')], page.size_elems))
     seed_elems_tmp = list(map(lambda x: x.text,
                            page.html.find_all('td', attrs={'align': 'right'})))
     page.magnet_elems = list(map(lambda x: x.get('href'),
