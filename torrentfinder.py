@@ -12,7 +12,7 @@ Usage: torrentfinder.py [options] <search_terms>...
 --help, -h                    Display this usage info.
 --number=results, -n results  Number of results to display.
 --seeders=min, -s min         Filter results based on minimum number of seeders.
---website=site, -w site       'pb' for thepiratebay.org(default).
+--website=site, -w site       'pb' for thepiratebay.org(default), '1337x' for 1337x.to.
 
 """
 
@@ -63,6 +63,21 @@ def PB_parse_elements(page):
         if i % 2 == 0:
             page.seed_elems.append(seed_elems_tmp[i])
 
+#return the magnet link element from a 1337x.pl result page
+def l337_sub_page(page, sub_url):
+    sub_req = page.http.request('GET', sub_url)
+    sub_html = BeautifulSoup(sub_req.data, 'lxml')
+    return sub_html.find_all('a', attrs={'class': 'btn-magnet'})[0]
+ 
+def l337_parse_elements(page):
+    page.size_elems = page.html.find_all('td', class_ = 'coll-4')
+    page.seed_elems = page.html.find_all('td', class_ = 'coll-2')
+    page.name_elems = page.html.find_all('td', class_ = 'coll-1')
+    page.name_elems = list(map(lambda x: x.find_all('a')[1], page.name_elems))
+    sub_urls = list(map(lambda x: x.get('href'), page.name_elems))
+    page.magnet_elems = list(map(lambda x: l337_sub_page(page, 'https://1337x.to' + x),
+                             sub_urls))
+    
 
 max_results = 4
 min_seeders = 0
@@ -89,8 +104,12 @@ for i in range(len(args['<search_terms>'])):
 search_terms = search_terms[:-3]
 
 #if args['--website'] == 'pb':
-page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
-                PB_parse_elements)
+if args['--website'] == '1337x':
+    page = PageData('https://1337x.to/search/' + search_terms + '/1/',
+                    l337_parse_elements)
+else:
+    page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
+                    PB_parse_elements)
 
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 
