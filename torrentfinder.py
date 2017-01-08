@@ -58,7 +58,7 @@ def KT_parse_elements(page):
     page.size_elems = page.html.find_all('td', attrs={'class': 'nobr center'})
     page.seed_elems = page.html.find_all('td', attrs={'class': 'green center'})
     page.magnet_elems = page.html.find_all('a',
-                                           attrs={'title': 'Torrent magnet link'})
+                                           attrs={'title': 'Download torrent file'})
 
 
 def PB_parse_elements(page):
@@ -92,6 +92,10 @@ if (args['--help']):
 
 for i in range(len(args['<search_terms>'])):
     search_terms = search_terms + args['<search_terms>'][i] + '%20'
+    
+#remove trailing '%20', fucks up search urls
+search_terms = search_terms[:-3]
+print(search_terms)
 
 if args['--website'] == 'pb':
     page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
