@@ -72,7 +72,7 @@ def PB_parse_elements(page):
 def l337_sub_page(page, sub_url):
     sub_req = page.http.request('GET', sub_url)
     sub_html = BeautifulSoup(sub_req.data, 'lxml')
-    return sub_html.find_all('a', attrs={'class': 'btn-magnet'})[0].get('href')
+    return sub_html.find_all('a', attrs={'class': 'btn-acaebece'})[0].get('href')
  
 def l337_parse_elements(page):
     page.size_elems = list(map(lambda x: x.text[:x.text.find('B') + 1],
