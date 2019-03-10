@@ -2,6 +2,7 @@
 # See 'LICENSE' for license details.
 import urllib3
 import sys
+import os
 from bs4 import BeautifulSoup
 from docopt import docopt
 
@@ -53,39 +54,23 @@ class PageData:
         self.torrent_list = list(filter(func, self.torrent_list))
 
 
-def PB_parse_elements(page):
-    page.name_elems = list(map(lambda x: x.text,
-                           page.html.find_all('a', attrs={'class': 'detLink'})))
-    page.size_elems = list(map(lambda x: x.text[x.text.find('Size') + 7:],
-                           page.html.find_all('font', attrs={'class': 'detDesc'})))
-    page.size_elems = list(map(lambda x: x[:x.find(',')], page.size_elems))
-    seed_elems_tmp = list(map(lambda x: x.text,
-                           page.html.find_all('td', attrs={'align': 'right'})))
-    page.magnet_elems = list(map(lambda x: x.get('href'),
-                           page.html.find_all('a', attrs={'title': 'Download this torrent using magnet'})))
-    page.seed_elems = []
-    for i in range(len(seed_elems_tmp)):
-        if i % 2 == 0:
-            page.seed_elems.append(seed_elems_tmp[i])
+class Plugin:
+    def __init__(self, name, parse_fun):
+        self.name = name
+        #parse_fun(search_query) -> PageData, where search_query is sanitized query string
+        self.parse_fun = parse_fun
 
-#return the magnet link element from a 1337x.pl result page
-def l337_sub_page(page, sub_url):
-    sub_req = page.http.request('GET', sub_url)
-    sub_html = BeautifulSoup(sub_req.data, 'lxml')
-    return sub_html.find_all('a', attrs={'class': 'btn-acaebece'})[0].get('href')
- 
-def l337_parse_elements(page):
-    page.size_elems = list(map(lambda x: x.text[:x.text.find('B') + 1],
-                              page.html.find_all('td', class_ = 'coll-4')))
-    page.seed_elems = list(map(lambda x: x.text,
-                              page.html.find_all('td', class_ = 'coll-2')))
-    page.name_elems = page.html.find_all('td', class_ = 'coll-1')
-    page.name_elems = list(map(lambda x: x.find_all('a')[1], page.name_elems))
-    sub_urls = list(map(lambda x: x.get('href'), page.name_elems))
-    page.name_elems = list(map(lambda x: x.text, page.name_elems))
-    page.magnet_elems = list(map(lambda x: l337_sub_page(page, 'https://1337x.to' + x),
-                             sub_urls))
-    
+plugins_list = []
+
+def add_plugin(plugin):
+    plugins_list.append(plugin)
+
+
+#load all plugins from the plugins dir
+for f in os.listdir('./plugins'):
+    exec(open('./plugins/' + f).read())
+
+  
 
 max_results = 4
 min_seeders = 0
@@ -111,13 +96,12 @@ for i in range(len(args['<search_terms>'])):
 #remove trailing '%20', fucks up search urls
 search_terms = search_terms[:-3]
 
-#if args['--website'] == 'pb':
-if args['--website'] == '1337x':
-    page = PageData('https://1337x.to/search/' + search_terms + '/1/',
-                    l337_parse_elements)
-else:
-    page = PageData('https://thepiratebay.org/search/' + search_terms + '/',
-                    PB_parse_elements)
+
+
+for plugin in plugins_list:
+    print(plugin.name)
+    if plugin.name == args['--website']:
+        page = plugin.parse_fun(search_terms)
 
 page.filter_torrents(lambda x: int(x.seeders) >= min_seeders)
 
